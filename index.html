@@ -5,8 +5,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
   
-   <!-- 🖼️ [แก้ได้] เปลี่ยน favicon / app icon โดยแก้ URL ในทั้ง 3 บรรทัดนี้ -->
-  <link rel="apple-touch-icon" href="https://i.ibb.co/gF4y9q6X/6396687.jpg">
+   <link rel="apple-touch-icon" href="https://i.ibb.co/gF4y9q6X/6396687.jpg">
   <link rel="icon" sizes="192x192" href="https://i.ibb.co/gF4y9q6X/6396687.jpg">
   <link rel="shortcut icon" href="https://i.ibb.co/gF4y9q6X/6396687.jpg">
 
@@ -26,6 +25,18 @@
     const { useState, useMemo, useEffect, useCallback } = React;
 
     // ==========================================
+    // 🗂️ สถานะการทำงานทั้งหมด
+    // ==========================================
+    const WORK_STATUSES = [
+      { value: 'รอคิวก่อนนะคะ', percent: 0 },
+      { value: 'กำลังเริ่มทำนะคะ', percent: 25 },
+      { value: 'กำลังใส่รายละเอียด', percent: 50 },
+      { value: 'กำลังตกแต่ง', percent: 75 },
+      { value: 'เสร็จงานรอเช็ค', percent: 90 },
+      { value: 'ส่งงานแล้ว', percent: 100 }
+    ];
+
+    // ==========================================
     // 🖼️ 📝 โน้ต: รวมไอคอน SVG ของเว็บ
     // ==========================================
     const IconPlus = ({size=24, className=""}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>;
@@ -43,6 +54,8 @@
     const IconChevronLeft = ({size=24, className=""}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="15 18 9 12 15 6"></polyline></svg>;
     const IconChevronRight = ({size=24, className=""}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="9 18 15 12 9 6"></polyline></svg>;
     const IconTrash = ({size=24, className=""}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>;
+    const IconChevronsLeft = ({size=24, className=""}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="11 17 6 12 11 7"></polyline><polyline points="18 17 13 12 18 7"></polyline></svg>;
+    const IconChevronsRight = ({size=24, className=""}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="13 17 18 12 13 7"></polyline><polyline points="6 17 11 12 6 7"></polyline></svg>;
 
     // ==========================================
     // 🎨 📝 โน้ตสี: ตัวแปรหลักที่ใช้ควบคุมสีทั้งหมดในเว็บ
@@ -230,57 +243,118 @@
       </div>
     ));
 
-    const TaskCard = React.memo(({ task, isAdmin, onEdit, onToggleDoing, onToggleStatus }) => (
-      <div onClick={() => isAdmin && onEdit(task)} className={`relative rounded-[22px] p-3 transition-all border shadow-sm group backdrop-blur-sm ${isAdmin ? 'active:scale-[0.97] cursor-pointer' : ''}`} style={{ backgroundColor: task.status === 'done' ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.85)', borderColor: task.status === 'doing' ? COLORS.orangeDeep : (task.status === 'done' ? 'transparent' : COLORS.white), opacity: task.status === 'done' ? 0.7 : 1 }}>
-        {task.status === 'doing' && (
-           <div className="absolute inset-0 pointer-events-none z-0">
-             <div className="absolute -bottom-2 -left-3 text-[14px] animate-float-particle-1 drop-shadow-sm">🎀</div>
-             <div className="absolute top-[30%] -left-4 text-[10px] animate-float-particle-3 drop-shadow-sm" style={{ animationDelay: '1.5s' }}>🎀</div>
-             <div className="absolute -bottom-2 -right-3 text-[14px] animate-float-particle-2 drop-shadow-sm" style={{ animationDelay: '0.5s' }}>🎀</div>
-             <div className="absolute top-[30%] -right-4 text-[10px] animate-float-particle-1 drop-shadow-sm" style={{ animationDelay: '1.2s' }}>🎀</div>
-           </div>
-        )}
-        <div className="absolute left-2 top-3 bottom-3 w-1 rounded-full shadow-sm z-10" style={{ backgroundColor: task.channel === 'LINE' ? '#D5EDB5' : task.channel === 'FB' || task.channel === 'FACEBOOK' ? '#C0D5E9' : task.channel === 'IG' ? '#FFD3DE' : COLORS.purpleDeep }}></div>
-        <div className="pl-3 pr-1 relative z-10">
-          <div className="flex justify-between items-start mb-1">
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="font-bold text-base truncate" style={{ color: COLORS.textMain }}>{task.client}</span>
-              <span className={`text-[7px] px-1.5 py-0.5 rounded-md font-black uppercase border ${task.channel === 'LINE' ? 'text-[#c1e588] bg-[#e8f9cf]/10 border-[#c1e588]/20' : task.channel === 'FB' || task.channel === 'FACEBOOK' ? 'text-[#99c4e6] bg-[#e3f1fa]/10 border-[#a7d0ee]/20' : task.channel === 'IG' ? 'text-[#A38A30] bg-[#FCF6DE]/50 border-[#D4B856]/30' : 'bg-white/50 text-gray-400 border-gray-100'}`}>{task.channel}</span>
-              {task.priority === 'urgent' && <span className="text-[9px] font-bold animate-pulse bg-white px-2 py-0.5 rounded-full shadow-sm" style={{ color: COLORS.pinkDeep }}>🔥 ด่วน</span>}
+    const TaskCard = React.memo(({ task, isAdmin, onEdit, onToggleDoing, onToggleStatus, onStepWorkStatus }) => {
+      // ✨ ค้นหาสถานะปัจจุบันเพื่อคำนวณสีและการแสดงผล
+      const isDone = task.workStatus === 'ส่งงานแล้ว';
+      const isTodo = task.workStatus === 'รอคิวก่อนนะคะ';
+      const isDoing = !isDone && !isTodo;
+
+      const currentIndex = WORK_STATUSES.findIndex(s => s.value === task.workStatus);
+      const safeIndex = currentIndex === -1 ? 0 : currentIndex;
+      const currentStatus = WORK_STATUSES[safeIndex];
+
+      return (
+        <div onClick={() => isAdmin && onEdit(task)} className={`relative rounded-[22px] p-3 transition-all border shadow-sm group backdrop-blur-sm ${isAdmin ? 'active:scale-[0.97] cursor-pointer' : ''}`} style={{ backgroundColor: isDone ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.85)', borderColor: isDoing ? COLORS.orangeDeep : (isDone ? 'transparent' : COLORS.white), opacity: isDone ? 0.7 : 1 }}>
+          {isDoing && (
+             <div className="absolute inset-0 pointer-events-none z-0">
+               <div className="absolute -bottom-2 -left-3 text-[14px] animate-float-particle-1 drop-shadow-sm">🎀</div>
+               <div className="absolute top-[30%] -left-4 text-[10px] animate-float-particle-3 drop-shadow-sm" style={{ animationDelay: '1.5s' }}>🎀</div>
+               <div className="absolute -bottom-2 -right-3 text-[14px] animate-float-particle-2 drop-shadow-sm" style={{ animationDelay: '0.5s' }}>🎀</div>
+               <div className="absolute top-[30%] -right-4 text-[10px] animate-float-particle-1 drop-shadow-sm" style={{ animationDelay: '1.2s' }}>🎀</div>
+             </div>
+          )}
+          <div className="absolute left-2 top-3 bottom-3 w-1 rounded-full shadow-sm z-10" style={{ backgroundColor: task.channel === 'LINE' ? '#D5EDB5' : task.channel === 'FB' || task.channel === 'FACEBOOK' ? '#C0D5E9' : task.channel === 'IG' ? '#FFD3DE' : COLORS.purpleDeep }}></div>
+          <div className="pl-3 pr-1 relative z-10">
+            
+            <div className="flex justify-between items-start mb-0.5">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="font-bold text-base truncate" style={{ color: COLORS.textMain }}>{task.client}</span>
+                <span className={`text-[7px] px-1.5 py-0.5 rounded-md font-black uppercase border ${task.channel === 'LINE' ? 'text-[#c1e588] bg-[#e8f9cf]/10 border-[#c1e588]/20' : task.channel === 'FB' || task.channel === 'FACEBOOK' ? 'text-[#99c4e6] bg-[#e3f1fa]/10 border-[#a7d0ee]/20' : task.channel === 'IG' ? 'text-[#A38A30] bg-[#FCF6DE]/50 border-[#D4B856]/30' : 'bg-white/50 text-gray-400 border-gray-100'}`}>{task.channel}</span>
+                {task.priority === 'urgent' && <span className="text-[9px] font-bold animate-pulse bg-white px-2 py-0.5 rounded-full shadow-sm" style={{ color: COLORS.pinkDeep }}>🔥 ด่วน</span>}
+              </div>
+              <div className="flex items-center gap-1 text-[9px] font-black bg-[#fdedee]/80 px-2.5 py-0.5 rounded-lg border border-[#FCF6DE] shadow-sm" style={{ color: COLORS.pinkDeep }}>
+                  <IconCalendar size={11} style={{ color: COLORS.pinkDeep }} />
+                  {new Date(task.deadline).toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit', year: '2-digit' })}
+              </div>
             </div>
-            <div className="flex items-center gap-1 text-[9px] font-black bg-[#fdedee]/80 px-2.5 py-0.5 rounded-lg border border-[#FCF6DE] shadow-sm" style={{ color: COLORS.pinkDeep }}>
-                <IconCalendar size={11} style={{ color: COLORS.pinkDeep }} />
-                {new Date(task.deadline).toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit', year: '2-digit' })}
-            </div>
-          </div>
-          <div className="flex justify-between items-end mt-1">
-            <div className="flex-1 min-w-0 mr-4 flex flex-col">
-              <span className={`text-[10px] font-bold truncate ${task.status === 'done' ? 'line-through text-gray-300' : 'text-gray-400'}`}>{task.type}</span>
-              {task.details && (
-                <span className={`text-[11px] font-medium truncate mt-0.5 ${task.status === 'done' ? 'text-gray-300' : 'text-gray-600'}`}>{task.details}</span>
+            
+            <div className="flex justify-between items-center">
+              <div className="flex-1 min-w-0 mr-4 flex flex-col justify-center -mt-1.5">
+                <span className={`text-[10px] font-bold truncate ${isDone ? 'line-through text-gray-300' : 'text-gray-500'}`}>
+                  {task.type} {task.details && <span className="font-medium opacity-70">({task.details})</span>}
+                </span>
+              </div>
+
+              {isAdmin ? (
+                <div className="flex gap-1.5 shrink-0">
+                  <button onClick={(e) => onToggleDoing(e, task.id)} className={`relative w-[28px] h-[28px] rounded-[8px] flex items-center justify-center transition-all active:scale-90 shadow-[0_3px_10px_rgba(249,188,206,0.2)] border-[2px] border-white/80 ${isDoing ? 'bg-[#fddfe7]' : 'bg-white'}`} style={{ color: isDoing ? COLORS.orangeDeep : '#fdedee' }}>
+                    <div className={`${isDoing ? 'animate-spin-slow' : ''} flex items-center justify-center`}><IconLoader size={14} /></div>
+                  </button>
+                  <button onClick={(e) => onToggleStatus(e, task.id)} className={`relative w-[28px] h-[28px] rounded-[8px] flex items-center justify-center transition-all active:scale-90 shadow-[0_3px_10px_rgba(249,188,206,0.2)] border-[2px] border-white/80 ${isDone ? 'bg-[#fddfe7]' : 'bg-white'}`} style={{ color: isDone ? COLORS.pinkDeep : '#fdedee' }}>
+                    <IconCheck size={16} />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center shrink-0">
+                  {isDoing && <span className="text-[10px] font-bold text-[#fac7d6] flex items-center gap-1 bg-white px-2 py-1 rounded-md border border-[#fbd3de] shadow-sm"><IconLoader size={10} className="animate-spin-slow"/> กำลังทำ</span>}
+                  {isDone && <span className="text-[10px] font-bold text-[#fbd3de] flex items-center gap-1 bg-white px-2 py-1 rounded-md border border-[#fbd3de] shadow-sm"><IconCheck size={10} /> เสร็จแล้ว</span>}
+                  {isTodo && <span className="text-[10px] font-bold text-gray-400 flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-md border border-gray-100 shadow-sm"><IconClock size={10} /> รอคิว</span>}
+                </div>
               )}
             </div>
 
-            {isAdmin ? (
-              <div className="flex gap-1.5">
-                <button onClick={(e) => onToggleDoing(e, task.id)} className={`relative w-[28px] h-[28px] rounded-[8px] flex items-center justify-center transition-all active:scale-90 shadow-[0_3px_10px_rgba(249,188,206,0.2)] border-[2px] border-white/80 ${task.status === 'doing' ? 'bg-[#fddfe7]' : 'bg-white'}`} style={{ color: task.status === 'doing' ? COLORS.orangeDeep : '#fdedee' }}>
-                  <div className={`${task.status === 'doing' ? 'animate-spin-slow' : ''} flex items-center justify-center`}><IconLoader size={14} /></div>
-                </button>
-                <button onClick={(e) => onToggleStatus(e, task.id)} className={`relative w-[28px] h-[28px] rounded-[8px] flex items-center justify-center transition-all active:scale-90 shadow-[0_3px_10px_rgba(249,188,206,0.2)] border-[2px] border-white/80 ${task.status === 'done' ? 'bg-[#fddfe7]' : 'bg-white'}`} style={{ color: task.status === 'done' ? COLORS.pinkDeep : '#fdedee' }}>
-                  <IconCheck size={16} />
-                </button>
+            {/* 💧 Progress Bar */}
+            <div className="w-full mt-1 mb-0.5">
+              
+              <div className="flex justify-between items-end mb-1">
+                 <span className="text-[10px] font-black text-[#f6a3bd] drop-shadow-sm ml-1">{currentStatus.value} {currentStatus.percent}%</span>
               </div>
-            ) : (
-              <div className="flex items-center">
-                {task.status === 'doing' && <span className="text-[10px] font-bold text-[#fac7d6] flex items-center gap-1 bg-white px-2 py-1 rounded-md border border-[#fbd3de] shadow-sm"><IconLoader size={10} className="animate-spin-slow"/> กำลังทำ</span>}
-                {task.status === 'done' && <span className="text-[10px] font-bold text-[#fbd3de] flex items-center gap-1 bg-white px-2 py-1 rounded-md border border-[#fbd3de] shadow-sm"><IconCheck size={10} /> เสร็จแล้ว</span>}
-                {task.status === 'todo' && <span className="text-[10px] font-bold text-gray-400 flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-md border border-gray-100 shadow-sm"><IconClock size={10} /> รอคิว</span>}
+
+              <div className="flex items-center gap-2 w-full">
+                 
+                 <div className="flex-1 h-[18px] relative rounded-full shadow-sm bg-[#fce4ec] overflow-visible">
+                    
+                    <div className="absolute inset-0 rounded-full overflow-hidden pointer-events-none z-0">
+                       <div className="absolute w-[400%] h-[1500%] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-spin-border opacity-90" style={{ backgroundImage: 'conic-gradient(from 0deg, transparent 0%, transparent 60%, #f9bcce 80%, transparent 100%)' }}></div>
+                    </div>
+                    
+                    <div className="absolute top-[1.5px] bottom-[1.5px] left-[1.5px] right-[1.5px] bg-[#fce4ec] rounded-full overflow-hidden z-10 border border-white/40">
+                       <div className="absolute top-0 left-0 h-full bg-[#f9bcce] transition-all duration-500 ease-out" style={{ width: `${currentStatus.percent}%` }}>
+                          <div className="absolute inset-0 w-full h-full opacity-70 animate-water-flow">
+                             <div className="w-1.5 h-1.5 bg-white/80 rounded-full absolute bottom-[-2px] left-[10%] animate-bubble" style={{animationDuration: '1.5s'}}></div>
+                             <div className="w-2 h-2 bg-white/60 rounded-full absolute bottom-[-2px] left-[30%] animate-bubble" style={{animationDuration: '2.5s', animationDelay: '0.3s'}}></div>
+                             <div className="w-1.5 h-1.5 bg-white/70 rounded-full absolute bottom-[-2px] left-[55%] animate-bubble" style={{animationDuration: '2s', animationDelay: '0.7s'}}></div>
+                             <div className="w-2.5 h-2.5 bg-white/50 rounded-full absolute bottom-[-2px] left-[80%] animate-bubble" style={{animationDuration: '3s', animationDelay: '0.1s'}}></div>
+                          </div>
+                       </div>
+                    </div>
+
+                    <div className="absolute top-[1.5px] bottom-[1.5px] left-[1.5px] right-[1.5px] pointer-events-none z-20">
+                       <div className="absolute top-0 left-0 h-full transition-all duration-500 ease-out flex items-center justify-end" style={{ width: `${currentStatus.percent}%` }}>
+                           {currentStatus.percent > 0 && <span className="absolute text-[15px] animate-bow-wiggle drop-shadow-md translate-x-1/2">🎀</span>}
+                       </div>
+                    </div>
+
+                 </div>
+
+                 {isAdmin && (
+                   <div className="flex gap-1 shrink-0">
+                     <button onClick={(e) => { e.stopPropagation(); onStepWorkStatus(task.id, -1); }} disabled={safeIndex === 0} className="w-[20px] h-[20px] rounded-[6px] border-[1.5px] border-[#f9bcce] flex items-center justify-center text-[#f9bcce] disabled:opacity-30 disabled:border-gray-200 disabled:text-gray-300 hover:bg-[#FFE7ED] transition-colors active:scale-90 shadow-sm bg-white">
+                       <IconChevronsLeft size={12}/>
+                     </button>
+                     <button onClick={(e) => { e.stopPropagation(); onStepWorkStatus(task.id, 1); }} disabled={safeIndex === WORK_STATUSES.length - 1} className="w-[20px] h-[20px] rounded-[6px] border-[1.5px] border-[#f9bcce] flex items-center justify-center text-[#f9bcce] disabled:opacity-30 disabled:border-gray-200 disabled:text-gray-300 hover:bg-[#FFE7ED] transition-colors active:scale-90 shadow-sm bg-white">
+                       <IconChevronsRight size={12}/>
+                     </button>
+                   </div>
+                 )}
               </div>
-            )}
+
+            </div>
+            
           </div>
         </div>
-      </div>
-    ));
+      );
+    });
 
     const CalendarView = React.memo(({ currentMonth, setCurrentMonth, selectedDate, setSelectedDate, today, tasks }) => {
       const year = currentMonth.getFullYear();
@@ -375,10 +449,13 @@
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
       });
 
+      // 📝 สถานะสำหรับเก็บโน้ตข้อความ
+      const [globalNote, setGlobalNote] = useState(() => localStorage.getItem('zerin_global_note') || '');
+
       // ==========================================
       // 🌟 ตั้งค่าเชื่อมต่อ API (GitHub -> Google Sheets)
       // ==========================================
-      const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz4kRTcEEg3nsV45-i2FH87kRrtIAZcS7FypMd2dOhl0NIO4khOeJNesMeFdIiECH9p/exec";
+      const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz3dmutp0QI-bu-pZdAy1-AWKwRNOWiYDA4evBsfEP5WDaB7dBCbjbiaQkmmhVszqXf/exec";
 
       const fetchAPI = async (payload) => {
         try {
@@ -408,6 +485,12 @@
               if (response.data.bannerImage) setBannerImage(response.data.bannerImage);
               if (response.data.bannerVisible !== undefined) setIsBannerVisible(response.data.bannerVisible);
               if (response.data.lockedNextDate) setSelectedNextDate(response.data.lockedNextDate);
+              
+              // ✨ นำข้อมูล Global Note จาก Google Sheets มาเซ็ตและเก็บลง LocalStorage ด้วย
+              if (response.data.globalNote !== undefined) {
+                 setGlobalNote(response.data.globalNote);
+                 localStorage.setItem('zerin_global_note', response.data.globalNote);
+              }
             }
             setIsLoading(false);
           })
@@ -442,7 +525,9 @@
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
       }, []);
       const todayTasks = useMemo(() => tasks.filter(t => t.deadline === today), [tasks, today]);
-      const doneToday = useMemo(() => todayTasks.filter(t => t.status === 'done').length, [todayTasks]);
+      
+      // ✨ คำนวณความสำเร็จของวันนี้ โดยอิงจากคำว่า 'ส่งงานแล้ว'
+      const doneToday = useMemo(() => todayTasks.filter(t => t.workStatus === 'ส่งงานแล้ว').length, [todayTasks]);
       const progress = todayTasks.length === 0 ? 0 : Math.round((doneToday / todayTasks.length) * 100);
 
       const nextQueueDate = useMemo(() => {
@@ -459,16 +544,17 @@
         return today;
       }, [tasks, selectedNextDate, today]);
 
-      const waitingCount = useMemo(() => tasks.filter(t => t.status !== 'done').length, [tasks]);
+      // ✨ นับคิวก่อนหน้า โดยอิงจากสถานะที่ไม่ใช่ 'ส่งงานแล้ว'
+      const waitingCount = useMemo(() => tasks.filter(t => t.workStatus !== 'ส่งงานแล้ว').length, [tasks]);
 
       const toggleStatus = useCallback((e, id) => {
         e.stopPropagation();
         setTasks(prev => {
           return prev.map(t => {
             if (t.id === id) {
-              const newStatus = t.status === 'done' ? 'todo' : 'done';
+              const newStatus = t.workStatus === 'ส่งงานแล้ว' ? 'รอคิวก่อนนะคะ' : 'ส่งงานแล้ว';
               fetchAPI({ action: 'updateTaskStatus', taskId: id, newStatus: newStatus });
-              return { ...t, status: newStatus };
+              return { ...t, workStatus: newStatus };
             }
             return t;
           });
@@ -480,9 +566,31 @@
         setTasks(prev => {
           return prev.map(t => {
             if (t.id === id) {
-              const newStatus = t.status === 'doing' ? 'todo' : 'doing';
+              const isDoing = t.workStatus !== 'รอคิวก่อนนะคะ' && t.workStatus !== 'ส่งงานแล้ว';
+              const newStatus = isDoing ? 'รอคิวก่อนนะคะ' : 'กำลังเริ่มทำนะคะ';
               fetchAPI({ action: 'updateTaskStatus', taskId: id, newStatus: newStatus });
-              return { ...t, status: newStatus };
+              return { ...t, workStatus: newStatus };
+            }
+            return t;
+          });
+        });
+      }, []);
+
+      // ✨ ฟังก์ชันเลื่อนสถานะบาร์เปอร์เซ็นต์ด้วยปุ่ม (เดินหน้า/ถอยหลัง)
+      const handleStepWorkStatus = useCallback((taskId, step) => {
+        setTasks(prev => {
+          return prev.map(t => {
+            if (t.id === taskId) {
+              const currentStatusStr = t.workStatus || 'รอคิวก่อนนะคะ';
+              const currentIndex = WORK_STATUSES.findIndex(s => s.value === currentStatusStr);
+              let safeIndex = currentIndex === -1 ? 0 : currentIndex;
+              let nextIndex = safeIndex + step;
+              if (nextIndex < 0) nextIndex = 0;
+              if (nextIndex >= WORK_STATUSES.length) nextIndex = WORK_STATUSES.length - 1;
+
+              const updatedTask = { ...t, workStatus: WORK_STATUSES[nextIndex].value };
+              fetchAPI({ action: 'saveOrUpdateTask', task: updatedTask });
+              return updatedTask;
             }
             return t;
           });
@@ -498,6 +606,8 @@
         e.preventDefault();
         setIsSaving(true);
         const formData = new FormData(e.target);
+        
+        // ✨ ส่งข้อมูลเป็น object ไปหลังบ้าน
         const taskData = {
           id: editingTask ? editingTask.id : null,
           title: '', 
@@ -507,6 +617,7 @@
           priority: formData.get('priority') ? 'urgent' : 'normal', 
           deadline: formData.get('deadline'),
           details: formData.get('details'),
+          workStatus: formData.get('workStatus') || 'รอคิวก่อนนะคะ', 
         };
 
         fetchAPI({ action: 'saveOrUpdateTask', task: taskData })
@@ -540,7 +651,11 @@
 
       const filteredAllTasks = useMemo(() => tasks.filter(t => {
         const matchSearch = t.type.toLowerCase().includes(searchQuery.toLowerCase()) || t.client.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchFilter = filterType === 'all' || (filterType === 'pending' && t.status !== 'done') || (filterType === 'done' && t.status === 'done');
+        
+        // ✨ อัปเดต Filter ให้เช็คจากคำว่า 'ส่งงานแล้ว'
+        const matchFilter = filterType === 'all' || 
+                           (filterType === 'pending' && t.workStatus !== 'ส่งงานแล้ว') || 
+                           (filterType === 'done' && t.workStatus === 'ส่งงานแล้ว');
         return matchSearch && matchFilter;
       }), [tasks, searchQuery, filterType]);
 
@@ -609,7 +724,7 @@
             <div className="px-5 relative z-10">
               {view === 'dashboard' ? (
                 <div className="animate-fadeIn">
-                  <div className="flex gap-3 h-28 mb-4">
+                  <div className="flex gap-3 h-28 mb-3">
                     <div className="flex-[1.6]">
                       <CompactStats isAdmin={isAdmin} selectedNextDate={selectedNextDate} nextQueueDate={nextQueueDate} handleSetManualDate={handleSetManualDate} waitingCount={waitingCount} />
                     </div>
@@ -617,12 +732,35 @@
                       <ProgressFlower progress={progress} todayTasksLength={todayTasks.length} doneToday={doneToday} triggerFlowerBounce={triggerFlowerBounce} isBouncing={isBouncing} />
                     </div>
                   </div>
+                  
+                  {/* 📝 ช่องสำหรับโน้ตข้อความ */}
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between mb-1.5 ml-1 mt-1">
+                      <h2 className="text-[10px] font-black text-gray-400 italic uppercase tracking-[0.3em] opacity-60">Notes</h2>
+                      <div className="h-[1px] flex-1 bg-gradient-to-r from-[#FCF6DE]/40 to-transparent mx-3"></div>
+                    </div>
+                    <input 
+                      type="text" 
+                      value={globalNote} 
+                      onChange={(e) => { 
+                         setGlobalNote(e.target.value); 
+                         localStorage.setItem('zerin_global_note', e.target.value); 
+                      }} 
+                      onBlur={(e) => {
+                         // ✨ เซฟข้อความลงชีตทันทีที่พิมพ์เสร็จแล้วเอาเมาส์คลิกที่อื่น
+                         fetchAPI({ action: 'saveGlobalNote', note: e.target.value });
+                      }}
+                      placeholder="📝 บันทึกข้อความเตือนความจำ..." 
+                      className="w-full h-[42px] px-4 rounded-[20px] bg-white/70 backdrop-blur-sm border border-white shadow-sm text-[11px] font-bold text-gray-500 outline-none focus:border-[#fbd3de] transition-colors placeholder:text-[#f9bcce]/60" 
+                    />
+                  </div>
+
                   <div className="flex items-center justify-between mb-2.5 ml-1">
                     <h2 className="text-[10px] font-black text-gray-400 italic uppercase tracking-[0.3em] opacity-60">Today's Task</h2>
                     <div className="h-[1px] flex-1 bg-gradient-to-r from-[#FCF6DE]/40 to-transparent mx-3"></div>
                   </div>
                   <div className="space-y-2">
-                    {todayTasks.length > 0 ? todayTasks.map(t => <TaskCard key={t.id} task={t} isAdmin={isAdmin} onEdit={handleEditTask} onToggleDoing={toggleDoing} onToggleStatus={toggleStatus} />) : (
+                    {todayTasks.length > 0 ? todayTasks.map(t => <TaskCard key={t.id} task={t} isAdmin={isAdmin} onEdit={handleEditTask} onToggleDoing={toggleDoing} onToggleStatus={toggleStatus} onStepWorkStatus={handleStepWorkStatus} />) : (
                       <div className="text-center py-10 bg-white/30 rounded-[28px] border-2 border-dashed border-[#fddfe7]/50">
                         <p className="text-[9px] font-bold uppercase tracking-widest opacity-40" style={{ color: COLORS.pinkDeep }}>Sky is clear ✨</p>
                       </div>
@@ -655,7 +793,7 @@
                   {isCalendarView && <CalendarView currentMonth={currentMonth} setCurrentMonth={setCurrentMonth} selectedDate={selectedDate} setSelectedDate={setSelectedDate} today={today} tasks={tasks} />}
 
                   <div className="space-y-2">
-                    {displayedTasks.length > 0 ? displayedTasks.map(t => <TaskCard key={t.id} task={t} isAdmin={isAdmin} onEdit={handleEditTask} onToggleDoing={toggleDoing} onToggleStatus={toggleStatus} />) : (
+                    {displayedTasks.length > 0 ? displayedTasks.map(t => <TaskCard key={t.id} task={t} isAdmin={isAdmin} onEdit={handleEditTask} onToggleDoing={toggleDoing} onToggleStatus={toggleStatus} onStepWorkStatus={handleStepWorkStatus} />) : (
                       <div className="text-center py-10 bg-white/30 rounded-[28px] border-[4px] border-dashed border-white shadow-sm mt-4">
                         <p className="text-[10px] font-black uppercase tracking-widest opacity-60" style={{ color: COLORS.textSoft }}>
                           {isCalendarView ? "วันนี้คิวว่าง ✨" : "No records found ✨"}
@@ -722,7 +860,17 @@
                         </datalist>
                      </div>
 
-                     <textarea name="details" rows="2" defaultValue={editingTask?.details || ''} className="w-full p-3.5 rounded-2xl bg-white border border-gray-100 outline-none text-[11px] shadow-sm focus:border-[#fbd3de] transition-all resize-none" placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)..."></textarea>
+                     {/* 📝 Dropdown สถานะเปอร์เซ็นต์งาน */}
+                     <div className="relative mt-2">
+                       <select name="workStatus" defaultValue={editingTask?.workStatus || 'รอคิวก่อนนะคะ'} className="w-full p-3.5 rounded-2xl bg-white border border-gray-100 outline-none text-[11px] font-bold text-[#f6a3bd] shadow-sm focus:border-[#fbd3de] transition-all cursor-pointer appearance-none">
+                         {WORK_STATUSES.map(s => <option key={s.value} value={s.value}>{s.value} ({s.percent}%)</option>)}
+                       </select>
+                       <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#f6a3bd]">
+                         <IconChevronRight className="rotate-90" size={14} />
+                       </div>
+                     </div>
+
+                     <textarea name="details" rows="2" defaultValue={editingTask?.details || ''} className="w-full p-3.5 rounded-2xl bg-white border border-gray-100 outline-none text-[11px] shadow-sm focus:border-[#fbd3de] transition-all resize-none mt-2" placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)..."></textarea>
                      
                      <div className="flex items-center justify-between bg-[#fbd3de]/30 p-1.5 pl-4 rounded-2xl border border-[#FCF6DE]/50 transition-all hover:bg-[#fbd3de]/80 hover:shadow-sm group mt-1">
                        <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-black" style={{ color: COLORS.pinkDeep }}>
@@ -840,6 +988,14 @@
             @keyframes text-wave { 0%, 20%, 100% { transform: translateY(0px); } 10% { transform: translateY(-5px); } }
             @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
             
+            /* 💧 อนิเมชันสำหรับหลอดน้ำและบับเบิล */
+            @keyframes water-flow { 0%, 100% { transform: translateX(0px); } 50% { transform: translateX(-5px); } }
+            @keyframes bubble { 0% { transform: translateY(15px) scale(0.8); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(-15px) scale(1.2); opacity: 0; } }
+            
+            /* 🎀 อนิเมชันน้องโบว์และแสงวิ่ง */
+            @keyframes bow-wiggle { 0%, 100% { transform: translateX(50%) translateY(0) rotate(-5deg); } 50% { transform: translateX(50%) translateY(-2px) rotate(5deg); } }
+            @keyframes spin-border { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+
             .animate-text-wave { animation: text-wave 4s ease-in-out infinite; }
             .animate-breathe { animation: breathe 4s ease-in-out infinite; transform-origin: center; }
             .animate-float-particle-1 { animation: float-particle-1 3s ease-out infinite; }
@@ -851,6 +1007,10 @@
             .animate-slideUp { animation: slideUp 0.3s ease-out; }
             .animate-fadeIn { animation: fadeIn 0.4s ease-out; }
             .animate-spin-slow { animation: spin-slow 4s linear infinite; }
+            .animate-water-flow { animation: water-flow 3s ease-in-out infinite; }
+            .animate-bubble { animation: bubble 2s ease-in infinite; }
+            .animate-bow-wiggle { animation: bow-wiggle 2s ease-in-out infinite; }
+            .animate-spin-border { animation: spin-border 3s linear infinite; }
           `}</style>
         </div>
       );
@@ -861,4 +1021,3 @@
   </script>
 </body>
 </html>
-
