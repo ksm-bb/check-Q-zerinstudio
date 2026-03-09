@@ -79,7 +79,7 @@
       if (!url) return '';
       const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)/);
       if (match && match[1]) {
-        return `https://lh3.googleusercontent.com/d/${match[1]}`;
+        return `https://lh3.googleusercontent.com/d/$${match[1]}`;
       }
       return url; 
     };
@@ -306,8 +306,9 @@
             {/* 💧 Progress Bar */}
             <div className="w-full mt-1 mb-0.5">
               
+              {/* ✨ เอาข้อความเปอร์เซ็นต์ออกตรงนี้ */}
               <div className="flex justify-between items-end mb-1">
-                 <span className="text-[10px] font-black text-[#f6a3bd] drop-shadow-sm ml-1">{currentStatus.value} {currentStatus.percent}%</span>
+                 <span className="text-[10px] font-black text-[#f6a3bd] drop-shadow-sm ml-1">{currentStatus.value}</span>
               </div>
 
               <div className="flex items-center gap-2 w-full">
@@ -750,7 +751,7 @@
                          // ✨ เซฟข้อความลงชีตทันทีที่พิมพ์เสร็จแล้วเอาเมาส์คลิกที่อื่น
                          fetchAPI({ action: 'saveGlobalNote', note: e.target.value });
                       }}
-                      placeholder="📝 บันทึกข้อความเตือนความจำ..." 
+                      placeholder="โน๊ตข้อความที่นี่" 
                       className="w-full h-[42px] px-4 rounded-[20px] bg-white/70 backdrop-blur-sm border border-white shadow-sm text-[11px] font-bold text-gray-500 outline-none focus:border-[#fbd3de] transition-colors placeholder:text-[#f9bcce]/60" 
                     />
                   </div>
@@ -860,10 +861,10 @@
                         </datalist>
                      </div>
 
-                     {/* 📝 Dropdown สถานะเปอร์เซ็นต์งาน */}
+                     {/* 📝 Dropdown สถานะเปอร์เซ็นต์งาน ✨ เอาเปอร์เซ็นต์ออกตรงนี้ด้วย */}
                      <div className="relative mt-2">
                        <select name="workStatus" defaultValue={editingTask?.workStatus || 'รอคิวก่อนนะคะ'} className="w-full p-3.5 rounded-2xl bg-white border border-gray-100 outline-none text-[11px] font-bold text-[#f6a3bd] shadow-sm focus:border-[#fbd3de] transition-all cursor-pointer appearance-none">
-                         {WORK_STATUSES.map(s => <option key={s.value} value={s.value}>{s.value} ({s.percent}%)</option>)}
+                         {WORK_STATUSES.map(s => <option key={s.value} value={s.value}>{s.value}</option>)}
                        </select>
                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#f6a3bd]">
                          <IconChevronRight className="rotate-90" size={14} />
